@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Will you be my girlfriend?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pink: #ff9db8;
+      --sky: #9fd8ff;
+      --accent: #ff6fa6;
+      --text: #2b2b2b;
+    }
+    * { box-sizing: border-box; }
+    html, body { height:100%; margin:0; font-family: Montserrat, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--pink), var(--sky));
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    .card {
+      width: min(860px, 96%);
+      max-width: 960px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 20px;
+      padding: 28px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.03);
+      position: relative;
+      overflow: visible;
+    }
+
+    .kitty {
+      width: 110px;
+      height: 110px;
+      position: absolute;
+      right: 22px;
+      top: -50px;
+      transform-origin: center;
+      will-change: transform, left, top;
+      pointer-events: none;
+      z-index: 40;
+      animation: floatAround 9s ease-in-out infinite;
+    }
+    .kitty img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    @keyframes floatAround {
+      0%   { transform: translate(0,0) rotate(-6deg) scale(1); right:22px; top:-50px; }
+      25%  { transform: translate(-18px,10px) rotate(4deg) scale(1.03); right:60px; top:-40px; }
+      50%  { transform: translate(10px,-8px) rotate(-2deg) scale(1); right:18px; top:-30px; }
+      75%  { transform: translate(-6px,14px) rotate(6deg) scale(1.02); right:80px; top:-55px; }
+      100% { transform: translate(0,0) rotate(-6deg) scale(1); right:22px; top:-50px; }
+    }
+
+    .message {
+      color: var(--text);
+      font-size: 20px;
+      max-width: 720px;
+      margin: 14px auto 22px;
+      line-height: 1.45;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .9s ease, transform .9s ease;
+    }
+    .message.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .envelope-wrap {
+      width: 360px;
+      height: 220px;
+      margin: 22px auto 18px;
+      position: relative;
+      perspective: 1000px;
+    }
+    .envelope {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s cubic-bezier(.2,.8,.2,1);
+      margin: 0 auto;
+      z-index: 10;
+      cursor: pointer;
+    }
+
+    .env-body {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, #fff 0%, #ffeef6 100%);
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.6);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 28px;
+    }
+
+    .env-flap {
+      position: absolute;
+      width: 100%;
+      height: 50%;
+      top: 0;
+      left: 0;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      transform-origin: top center;
+      background: linear-gradient(180deg, #fff0 0%, rgba(255,255,255,0.06) 30%, #fff 80%);
+      border-bottom: 2px solid rgba(0,0,0,0.02);
+      z-index: 30;
+      transition: transform 1s cubic-bezier(.2,.8,.2,1);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .env-flap:after {
+      content: '';
+      display: block;
+      width: 90%;
+      height: 40%;
+      background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(0,0,0,0.02) 100%);
+      border-bottom-left-radius: 6px;
+      border-bottom-right-radius: 6px;
+      transform: translateY(6px);
+    }
+
+    .letter {
+      width: 88%;
+      height: 62%;
+      background: linear-gradient(180deg, #fff 0%, #fffefc 100%);
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      font-weight: 600;
+      color: var(--text);
+      transform-origin: center;
+      transform: translateY(10px);
+      opacity: 0;
+      transition: opacity .6s ease .2s, transform .6s ease .2s;
+    }
+    .envelope.open .env-flap { transform: rotateX(180deg) translateY(-2px); }
+    .envelope.open .letter { opacity: 1; transform: translateY(0); }
+
+    .question {
+      font-size: 20px;
+      color: #222;
+    }
+
+    .buttons {
+      margin-top: 14px;
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      align-items: center;
+    }
+    .btn {
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      transition: transform .18s ease;
+    }
+    .btn:active {
+      transform: translateY(2px);
+    }
+    .yes {
+      background: linear-gradient(90deg, var(--accent), #ff9fc3);
+      color: white;
+    }
+    .no {
+      background: transparent;
+      color: #333;
+      border: 2px solid rgba(0,0,0,0.06);
+      position: relative;
+    }
+
+    .hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 60;
+    }
+    .pixel {
+      width: 12px;
+      height: 12px;
+      position: absolute;
+      transform: translateY(0) scale(1);
+      will-change: transform, opacity, left, top;
+      image-rendering: pixelated;
+      opacity: 0.98;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: rgba(0,0,0,0.45);
+      margin-top: 10px;
+    }
+
+    @media (max-width: 420px) {
+      .envelope-wrap { width: 92%; height: 200px; }
+      .kitty { width: 90px; height: 90px; left: auto; right: 8px; top: -58px; }
+    }
+
+    @keyframes pullAway {
+      0% { transform: translateX(0) rotate(0deg); opacity: 1; }
+      40% { transform: translateX(40px) rotate(-6deg); opacity: 1; }
+      70% { transform: translateX(160px) rotate(-24deg); opacity: 0.95; }
+      100% { transform: translateX(320px) rotate(-40deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card" aria-live="polite">
+    <div class="kitty" id="kitty">
+      <!-- I chose this Hello Kitty GIF URL from Giphy for you -->
+      <img id="kittyImg" src="https://media.giphy.com/media/1oF0ZBRrjMlbHy7B0M/giphy.gif" alt="Hello Kitty waving">
+    </div>
+
+    <h1 style="margin:6px 0 2px; font-size:22px;">Hey Blessing 💕</h1>
+
+    <p class="message" id="message">
+      From the first day I met you, you’ve made me feel like the world finally makes sense. Every moment with you feels softer, warmer, and brighter — like you were the missing piece I didn’t know I needed. 💕
+    </p>
+
+    <div class="envelope-wrap" aria-hidden="false">
+      <div class="envelope" id="envelope" role="img" aria-label="A pink-and-blue envelope">
+        <div class="env-flap"></div>
+        <div class="env-body">
+          <div class="letter" id="letter">
+            <div>
+              <div style="font-size:13px;color:rgba(0,0,0,0.5); margin-bottom:6px;">A little question inside...</div>
+              <div class="question">Will you be my girlfriend?</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn yes" id="yesBtn">Yes 💖</button>
+      <button class="btn no" id="noBtn">No 😭</button>
+    </div>
+
+    <div class="hint">(Click the envelope to open it!)</div>
+  </div>
+
+  <div class="hearts" id="hearts"></div>
+
+  <script>
+    const message = document.getElementById('message');
+    const envelope = document.getElementById('envelope');
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const kitty = document.getElementById('kitty');
+    const heartsContainer = document.getElementById('hearts');
+
+    window.addEventListener('load', () => {
+      setTimeout(() => message.classList.add('show'), 450);
+    });
+
+    // Only open envelope when clicked
+    envelope.addEventListener('click', () => {
+      if (!envelope.classList.contains('open')) {
+        envelope.classList.add('open');
+        // then schedule kitty to pull No away a bit later
+        setTimeout(() => pullNoAway(), 800);
+      }
+    });
+
+    yesBtn.addEventListener('click', (e) => {
+      spawnPixelHearts(20);
+      yesBtn.disabled = true;
+      yesBtn.textContent = 'Yay! 💖';
+      setTimeout(() => yesBtn.disabled = false, 2000);
+    });
+
+    noBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      noBtn.style.pointerEvents = 'none';
+      pullNoAway();
+    });
+
+    function pullNoAway() {
+      const btnRect = noBtn.getBoundingClientRect();
+      const kittyRect = kitty.getBoundingClientRect();
+
+      const targetX = btnRect.left + window.scrollX - kittyRect.width - 20;
+      const targetY = btnRect.top + window.scrollY - 10;
+
+      kitty.style.transition = 'transform .7s ease, left .8s ease, top .8s ease';
+      kitty.style.pointerEvents = 'none';
+
+      const clone = noBtn.cloneNode(true);
+      clone.style.position = 'absolute';
+      clone.style.zIndex = 1000;
+      const orig = noBtn.getBoundingClientRect();
+      clone.style.left = (orig.left + window.scrollX) + 'px';
+      clone.style.top = (orig.top + window.scrollY) + 'px';
+      clone.style.width = orig.width + 'px';
+      clone.style.height = orig.height + 'px';
+      clone.style.margin = '0';
+      clone.style.transition = 'transform 1.6s ease, opacity 1.6s ease';
+      document.body.appendChild(clone);
+
+      noBtn.style.visibility = 'hidden';
+      noBtn.style.pointerEvents = 'none';
+
+      setTimeout(() => {
+        clone.style.transform = 'translateX(320px) rotate(-40deg)';
+        clone.style.opacity = '0';
+      }, 60);
+
+      kitty.animate([
+        { transform: 'translateY(0) scale(1)' },
+        { transform: 'translateY(-6px) scale(1.05)' },
+        { transform: `translate(${(targetX - kittyRect.right) * 0.6}px, ${(targetY - kittyRect.top) * 0.5}px) scale(1.08)` },
+        { transform: 'translateY(0) scale(1)' }
+      ], { duration: 900, easing: 'ease-out', fill: 'forwards' });
+
+      setTimeout(() => clone.remove(), 1800);
+
+      setTimeout(() => {
+        kitty.animate([
+          { transform: 'scale(1)' },
+          { transform: 'scale(1.07)' },
+          { transform: 'scale(1)' }
+        ], { duration: 600, easing: 'ease-in-out' });
+      }, 2300);
+    }
+
+    function spawnPixelHearts(count = 12) {
+      const colors = ['#ff5a9e','#ffd1e6','#ffa6c9','#9fd8ff','#ffc1e0'];
+      const area = yesBtn.getBoundingClientRect();
+
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement('div');
+        el.classList.add('pixel');
+        const size = 8 + Math.round(Math.random()*12);
+        el.style.width = size + 'px';
+        el.style.height = size + 'px';
+        el.style.left = (area.left + Math.random()*area.width) + 'px';
+        el.style.top = (area.top + Math.random()*area.height) + 'px';
+        el.style.background = colors[Math.floor(Math.random()*colors.length)];
+        el.style.borderRadius = '2px';
+        el.style.opacity = '1';
+        el.style.transform = `translateY(0) scale(${0.9 + Math.random()*0.5}) rotate(${Math.random()*20 - 10}deg)`;
+        el.style.boxShadow = '0 1px 0 rgba(255,255,255,0.08) inset';
+        heartsContainer.appendChild(el);
+
+        const destX = (Math.random()*600) - 300;
+        const destY = - (150 + Math.random()*260);
+
+        el.animate([
+          { transform: el.style.transform, opacity: 1 },
+          { transform: `translate(${destX}px, ${destY}px) scale(0.8) rotate(${Math.random()*120 - 60}deg)`, opacity: 0.12 }
+        ], {
+          duration: 1600 + Math.random()*900,
+          easing: 'cubic-bezier(.2,.8,.2,1)',
+          iterations: 1,
+          fill: 'forwards'
+        });
+
+        setTimeout(() => {
+          try { el.remove(); } catch(e) {}
+        }, 2600 + Math.random()*800);
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        yesBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>
